@@ -98,6 +98,7 @@ public class XMLConfigurationHandler {
 
     private void SaveEmptyConfigurationIfNotExists(File file) throws FileNotFoundException, UnsupportedEncodingException {
         if (!file.exists() || file.isDirectory()) {
+            file.getParentFile().mkdirs();
             PrintWriter writer = new PrintWriter(configurationFilePath, "UTF-8");
             writer.println("<?xml version=\"1.0\"?>\n"
                     + "<profiles></profiles>");
