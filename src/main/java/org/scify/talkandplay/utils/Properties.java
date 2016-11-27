@@ -20,6 +20,9 @@ import java.net.URLDecoder;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * import org.jdom.input.SAXBuilder;
@@ -30,6 +33,8 @@ import org.jdom.input.SAXBuilder;
  * @author christina
  */
 public class Properties {
+
+    final Logger logger = LoggerFactory.getLogger(Properties.class);
 
     private String version;
     private String versionFileUrl;
@@ -65,7 +70,7 @@ public class Properties {
     private void parseXML() throws Exception {
         Element properties = configurationFile.getRootElement();
 
-        System.out.println("versionFileUrl " + properties.getChildText("versionFileUrl"));
+        logger.info("versionFileUrl " + properties.getChildText("versionFileUrl"));
 
         setVersion(properties.getChildText("version"));
         setVersionFileUrl(properties.getChildText("versionFileUrl"));

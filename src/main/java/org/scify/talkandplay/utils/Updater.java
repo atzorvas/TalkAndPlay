@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +31,8 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.scify.talkandplay.gui.UpdaterFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * UPDATE STEPS
@@ -48,6 +48,8 @@ import org.scify.talkandplay.gui.UpdaterFrame;
  */
 public class Updater {
 
+    final Logger logger = LoggerFactory.getLogger(Updater.class);
+
     private Properties properties;
 
     public Updater() {
@@ -56,13 +58,18 @@ public class Updater {
     }
 
     public void run() {
-        System.out.println("URL: " + properties.getZipUrl());
-        System.out.println("Zip file: " + properties.getZipFile());
+        logger.info("URL: " + properties.getZipUrl());
+        logger.info("Zip file: " + properties.getZipFile());
         if (hasUpdate()) {
+            logger.info("Showing frame");
             showFrame();
+            logger.info("Downloading zip");
             downloadZip();
+            logger.info("Extracting zip");
             ArrayList<String> tempfilesThatWillReplaceTheExisting = extractZip();
+            logger.info("Overriding files");
             overrideFiles(tempfilesThatWillReplaceTheExisting);
+            logger.info("Closing app");
             closeApp();
         }
     }
@@ -76,13 +83,13 @@ public class Updater {
 /*    private void deleteTmpFolder() {
         try {
             File dir = new File(this.properties.getApplicationFolder() + File.separator + properties.getTmpFolder());
-            System.out.println("Deleting tmp folder, exists " + dir.exists());
+            logger.info("Deleting tmp folder, exists " + dir.exists());
             if (dir.exists() && dir.isDirectory()) {
                 FileUtils.cleanDirectory(dir);
                 FileUtils.deleteDirectory(dir);
             }
         } catch (IOException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         }
     }*/
 
@@ -92,9 +99,9 @@ public class Updater {
             File file = new File(properties.getTmpFolder() + File.separator + properties.getZipFile());
             FileUtils.copyURLToFile(url, file);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         } catch (IOException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         }
     }
 
@@ -124,10 +131,10 @@ public class Updater {
             }
             zipIn.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
             return null;
         } catch (IOException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
             return null;
         }
         return tempfilesThatWillReplaceTheExisting;
@@ -142,7 +149,7 @@ public class Updater {
             //all the destination files are on same folder as well (the root folder).
 
             for (String source_file: tempfilesThatWillReplaceTheExisting) {
-                System.out.println("Overriding: " + source_file);
+                logger.info("Overriding: " + source_file);
                 File source = new File(source_file);
                 String sourceFileName =source.getName();
                 //one folder above is the destination file...
@@ -162,12 +169,12 @@ public class Updater {
 
  /*   private void startUpdater() {
         try {
-            System.out.println("java -jar " + properties.getJarPath() + "/" + properties.getTmpFolder() + "/" + properties.getUpdater());
+            logger.info("java -jar " + properties.getJarPath() + "/" + properties.getTmpFolder() + "/" + properties.getUpdater());
             Process proc = Runtime.getRuntime().exec("java -jar " + properties.getJarPath() + "/" + properties.getTmpFolder() + "/" + properties.getUpdater());
             InputStream in = proc.getInputStream();
             InputStream err = proc.getErrorStream();
         } catch (IOException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         }
     }*/
 
@@ -190,7 +197,7 @@ public class Updater {
 
                 String version = configurationFile.getRootElement().getChildText("version");
 
-                System.out.println(version + "," + properties.getVersion());
+                logger.info(version + "," + properties.getVersion());
 
                 if (!properties.getVersion().equals(version)) {
                     hasUpdate = true;
@@ -198,13 +205,13 @@ public class Updater {
             }
 
         } catch (MalformedURLException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         } catch (IOException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         } catch (JDOMException ex) {
-            Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+            logger.info(ex.printStackTrace());
         } finally {
-            System.out.println("Has update? " + hasUpdate);
+            logger.info("Has update? " + hasUpdate);
             return hasUpdate;
         }
     }
